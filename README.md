@@ -1,23 +1,44 @@
-# Project Title
+# Customer Searching
 
-One Paragraph of project description goes here
+This tool helps you to analyze your subscribers activity on social networks:  
+     - [instagram](https://www.instagram.com/)  
+     - [facebook](https://www.facebook.com/)  
+     - [vk](https://vk.com/)  
+
+You will know, who comments and likes your posts most of all.
 
 ## Prerequisites
 
-What things you need to install the software and how to install them
+Python3 should be already installed.
 
-```bash
-Give examples
-```
+## How to install and configure 
 
-## How to install
+- ``` 
+  $ git clone https://github.com/nicko858/customer-searching.git
+  $ cd customer-searching
+  $ pip install -r requirements.txt
+- Create `.env` file in the root of `customer-searching` 
+- Follow the instructions `VK instructions`, `Facebook instructions` from [this](https://github.com/nicko858/smm-reposting) repo.  
+**(!!You'll also need `groups_access_member_info` - permissions)**
+- Add the following records to your `.env` -file:
 
-A step by step series of examples that tell you how to get a development env running
+    ```bash
+    INSTA_LOGIN=<instagram login>
+    INSTA_PASSWORD=<instagram password>
+    ```
 
 ## How to run
 
-Explain how to run the program
+Script is launched with the required parameter - `social_network`.  
+It may be in:  [`vk`, `instagram`, `facebook`]  
+
+Example:
+
+```bash
+    $ cd customer-searching
+    $ smm_analyze.py instagram
+```
 
 ## Project Goals
 
-Explain the project goals
+The code is written for educational purposes on online-course for web-developers [dvmn.org](https://dvmn.org/).
