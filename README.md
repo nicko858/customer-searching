@@ -19,7 +19,7 @@ Python3 should be already installed.
   $ pip install -r requirements.txt
 - Create `.env` file in the root of `customer-searching` 
 - Follow the instructions `VK instructions`, `Facebook instructions` from [this](https://github.com/nicko858/smm-reposting) repo.  
-**(!!You'll also need `groups_access_member_info` - permissions)**
+**(!!You'll also need `groups_access_member_info` - permissions for `graph.facebook`)**
 - Add the following records to your `.env` -file:
 
     ```bash
