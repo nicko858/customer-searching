@@ -373,7 +373,6 @@ if __name__ == '__main__':
     social_media = cli_args.social_media
     vk_vendor_name = 'cocacola'
     insta_vendor_name = 'cocacolarus'
-    fb_vendor_name = ''
     analyze_methods = {
         'instagram': (get_instagram_analyze, insta_vendor_name),
         'vk': (get_vk_analyze, vk_vendor_name),
