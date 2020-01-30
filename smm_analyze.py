@@ -8,7 +8,6 @@ import argparse
 import pprint
 import requests
 from requests import ConnectionError
-from requests import HTTPError
 from urllib3.exceptions import ResponseError
 import json
 import time
@@ -34,10 +33,7 @@ def arg_parser():
 
 
 def get_last_date(now, months=0, weeks=0):
-    if months:
-        return now + relativedelta(months=months)
-    elif weeks:
-        return now + relativedelta(weeks=weeks)
+    return now + relativedelta(months=months, weeks=weeks)
 
 
 def run_insta_bot(insta_vendor_name, insta_login, insta_password):
