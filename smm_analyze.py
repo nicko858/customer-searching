@@ -59,17 +59,18 @@ def get_vk_media_likers(media_id, group_id):
         'count': likes_per_page,
     }
     url = VK_BASE_URL.format('likes.getList')
-    json_data, response_text = invoke_vk_api(url, payload)
-    likes_count = unpack_vk_response(
-        unpack_method='count',
-        json_data=json_data,
-        dest_url=url,
-        response_text=response_text,
-        )
     offset = 0
+    likes_count = 1
     while offset < likes_count:
         payload['offset'] = offset
         json_data, response_text = invoke_vk_api(url, payload)
+        if likes_count == 1:
+            likes_count = unpack_vk_response(
+               unpack_method='count',
+               json_data=json_data,
+               dest_url=url,
+               response_text=response_text,
+               )
         media_likers_data = unpack_vk_response(
             unpack_method='items',
             json_data=json_data,
@@ -123,16 +124,17 @@ def get_vk_media_comments(media_id, group_id):
         'count': comments_per_page,
     }
     url = VK_BASE_URL.format('wall.getComments')
-    json_data, response_text = invoke_vk_api(url, payload)
-    comments_count = unpack_vk_response(
-        unpack_method='count',
-        json_data=json_data,
-        dest_url=url,
-        response_text=response_text,
-    )
+    comments_count = 1
     while offset < comments_count:
         payload['offset'] = offset
         json_data, response_text = invoke_vk_api(url, payload)
+        if comments_count == 1:
+            comments_count = unpack_vk_response(
+                unpack_method='count',
+                json_data=json_data,
+                dest_url=url,
+                response_text=response_text,
+                )
         media_comments_data = unpack_vk_response(
             unpack_method='items',
             json_data=json_data,
@@ -152,17 +154,18 @@ def get_vk_medias(vk_vendor_name):
         'count': wall_records_count,
     }
     url = VK_BASE_URL.format('wall.get')
-    json_data, response_text = invoke_vk_api(url, payload)
-    medias_count = unpack_vk_response(
-        unpack_method='count',
-        json_data=json_data,
-        dest_url=url,
-        response_text=response_text,
-    )
     offset = 0
+    medias_count = 1
     while offset < medias_count:
         payload['offset'] = offset
         json_data, response_text = invoke_vk_api(url, payload)
+        if medias_count == 1:
+            medias_count = unpack_vk_response(
+                unpack_method='count',
+                json_data=json_data,
+                dest_url=url,
+                response_text=response_text,
+                )
         vk_medias_data = unpack_vk_response(
             unpack_method='items',
             json_data=json_data,
@@ -338,7 +341,7 @@ def get_vk_group_id(vendor_name):
     payload = {
         'group_ids': vk_vendor_name,
     }
-    url = '{0}/{1}'.format(VK_BASE_URL, 'groups.getById')
+    url = VK_BASE_URL.format('groups.getById')
     json_data, response_text = invoke_vk_api(url, payload)
     vk_group_id = unpack_vk_response(
         unpack_method='id',
