@@ -371,12 +371,12 @@ if __name__ == '__main__':
     pp = pprint.PrettyPrinter(indent=4)
     cli_args = arg_parser()
     social_media = cli_args.social_media
-    vk_vendor_name = 'cocacola'
-    insta_vendor_name = 'cocacolarus'
+    vk_vendor_name = getenv('VK_VENDOR')
+    insta_vendor_name = getenv('INSTA_VENDOR')
     analyze_methods = {
         'instagram': (get_instagram_analyze, insta_vendor_name),
         'vk': (get_vk_analyze, vk_vendor_name),
-        'facebook': (get_facebook_analyze, fb_vendor_name),
+        'facebook': (get_facebook_analyze),
     }
     analyze_method, vendor_name = analyze_methods[social_media]
     try:
