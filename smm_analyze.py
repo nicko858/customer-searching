@@ -15,8 +15,8 @@ import time
 
 
 VK_API = 5.103
-VK_BASE_URL = 'https://api.vk.com/method'
-FB_BASE_URL = 'https://graph.facebook.com'
+VK_BASE_URL = 'https://api.vk.com/method/{0}'
+FB_BASE_URL = 'https://graph.facebook.com/'
 
 
 class VkAPIUnavailable(Exception):
@@ -58,7 +58,7 @@ def get_vk_media_likers(media_id, group_id):
         'friends_only': 0,
         'count': likes_per_page,
     }
-    url = '{0}/{1}'.format(VK_BASE_URL, 'likes.getList')
+    url = VK_BASE_URL.format('likes.getList')
     json_data, response_text = invoke_vk_api(url, payload)
     likes_count = unpack_vk_response(
         unpack_method='count',
@@ -122,7 +122,7 @@ def get_vk_media_comments(media_id, group_id):
         'post_id': media_id,
         'count': comments_per_page,
     }
-    url = '{0}/{1}'.format(VK_BASE_URL, 'wall.getComments')
+    url = VK_BASE_URL.format('wall.getComments')
     json_data, response_text = invoke_vk_api(url, payload)
     comments_count = unpack_vk_response(
         unpack_method='count',
@@ -151,7 +151,7 @@ def get_vk_medias(vk_vendor_name):
         'domain': vk_vendor_name,
         'count': wall_records_count,
     }
-    url = '{0}/{1}'.format(VK_BASE_URL, 'wall.get')
+    url = VK_BASE_URL.format('wall.get')
     json_data, response_text = invoke_vk_api(url, payload)
     medias_count = unpack_vk_response(
         unpack_method='count',
