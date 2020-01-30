@@ -104,9 +104,7 @@ def invoke_vk_api(url, payload):
         response = requests.get(url, params=payload)
     except (ConnectionError, ResponseError):
         raise VkAPIUnavailable('{0} is not available!'.format(url))
-    try:
-        response.raise_for_status()
-    except HTTPError:
+    if not response.ok:
         raise VkAPIUnavailable(response.text)
     return response.json(), response.text
 
@@ -210,9 +208,7 @@ def get_facebook_media_comments(media_id, facebook_access_token):
         response = requests.get(dest_url, params=payload)
     except (ConnectionError, ResponseError):
         raise FaceBookAPIUnavailable('{0} is not available!'.format(dest_url))
-    try:
-        response.raise_for_status()
-    except HTTPError:
+    if not response.ok:
         raise FaceBookAPIUnavailable(response.text)
     return response.json()
 
@@ -226,9 +222,7 @@ def get_facebook_reactions(media_id, facebook_access_token):
         response = requests.get(dest_url, params=payload)
     except (ConnectionError, ResponseError):
         raise FaceBookAPIUnavailable('{0} is not available!'.format(dest_url))
-    try:
-        response.raise_for_status()
-    except HTTPError:
+    if not response.ok:
         raise FaceBookAPIUnavailable(response.text)
     return response.json()
 
@@ -243,9 +237,7 @@ def get_facebook_medias(facebook_access_token, group_id):
         response = requests.get(dest_url, params=payload)
     except (ConnectionError, ResponseError):
         raise FaceBookAPIUnavailable('{0} is not available!'.format(dest_url))
-    try:
-        response.raise_for_status()
-    except HTTPError:
+    if not response.ok:
         raise FaceBookAPIUnavailable(response.text)
     json_data = response.json()
     return [media['id'] for media in json_data['feed']['data']]
