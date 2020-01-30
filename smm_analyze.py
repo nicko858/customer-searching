@@ -2,7 +2,7 @@ from instabot import Bot
 from dotenv import load_dotenv
 from os import getenv
 from datetime import datetime
-from dateutil import relativedelta
+from dateutil.relativedelta import relativedelta
 from collections import defaultdict
 import argparse
 import pprint
@@ -35,12 +35,12 @@ def arg_parser():
 
 def get_last_date(now, months=0, weeks=0):
     if months:
-        return now + relativedelta.relativedelta(months=months)
+        return now + relativedelta(months=months)
     elif weeks:
-        return now + relativedelta.relativedelta(weeks=weeks)
+        return now + relativedelta(weeks=weeks)
 
 
-def instabot_init(insta_vendor_name):
+def run_insta_bot(insta_vendor_name):
     insta_login = getenv('INSTA_LOGIN')
     insta_password = getenv('INSTA_PASSWORD')
     bot = Bot()
@@ -283,7 +283,7 @@ def get_instagram_analyze(*args):
     now = datetime.now()
     insta_vendor_name, = args
     last_date = get_last_date(now, months=-3)
-    bot = instabot_init(insta_vendor_name)
+    bot = run_insta_bot(insta_vendor_name)
     user_id = bot.get_user_id_from_username(insta_vendor_name)
     media_slice = slice(0, 5)
     user_medias = bot.get_total_user_medias(user_id)[media_slice]
