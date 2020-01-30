@@ -16,7 +16,7 @@ import time
 
 VK_API = 5.103
 VK_BASE_URL = 'https://api.vk.com/method/{0}'
-FB_BASE_URL = 'https://graph.facebook.com/'
+FB_BASE_URL = 'https://graph.facebook.com'
 
 
 class VkAPIUnavailable(Exception):
@@ -40,15 +40,13 @@ def get_last_date(now, months=0, weeks=0):
         return now + relativedelta(weeks=weeks)
 
 
-def run_insta_bot(insta_vendor_name):
-    insta_login = getenv('INSTA_LOGIN')
-    insta_password = getenv('INSTA_PASSWORD')
+def run_insta_bot(insta_vendor_name, insta_login, insta_password):
     bot = Bot()
     bot.login(username=insta_login, password=insta_password)
     return bot
 
 
-def get_vk_media_likers(media_id, group_id):
+def get_vk_media_likers(media_id, group_id, access_token):
     media_likers = []
     likes_per_page = 1000
     payload = {
@@ -57,6 +55,8 @@ def get_vk_media_likers(media_id, group_id):
         'item_id': media_id,
         'friends_only': 0,
         'count': likes_per_page,
+        'access_token': access_token,
+        'v': VK_API,
     }
     url = VK_BASE_URL.format('likes.getList')
     offset = 0
@@ -100,9 +100,6 @@ def get_vk_commenters(comments_list, group_id):
 
 
 def invoke_vk_api(url, payload):
-    access_token = getenv('VK_ACCESS_TOKEN')
-    payload['access_token'] = access_token
-    payload['v'] = VK_API
     try:
         response = requests.get(url, params=payload)
     except (ConnectionError, ResponseError):
@@ -114,7 +111,7 @@ def invoke_vk_api(url, payload):
     return response.json(), response.text
 
 
-def get_vk_media_comments(media_id, group_id):
+def get_vk_media_comments(media_id, group_id, access_token):
     media_comments = []
     comments_per_page = 100
     offset = 0
@@ -122,6 +119,8 @@ def get_vk_media_comments(media_id, group_id):
         'owner_id': group_id,
         'post_id': media_id,
         'count': comments_per_page,
+        'access_token': access_token,
+        'v': VK_API,
     }
     url = VK_BASE_URL.format('wall.getComments')
     comments_count = 1
@@ -146,12 +145,14 @@ def get_vk_media_comments(media_id, group_id):
     return media_comments
 
 
-def get_vk_medias(vk_vendor_name):
+def get_vk_medias(vk_vendor_name, access_token):
     vk_medias = []
     wall_records_count = 100
     payload = {
         'domain': vk_vendor_name,
         'count': wall_records_count,
+        'access_token': access_token,
+        'v': VK_API,
     }
     url = VK_BASE_URL.format('wall.get')
     offset = 0
@@ -200,8 +201,7 @@ def get_facebook_commenters(comments_data, now, last_date):
     return list(commenters)
 
 
-def get_facebook_media_comments(media_id):
-    facebook_access_token = getenv('FACEBOOK_TOKEN')
+def get_facebook_media_comments(media_id, facebook_access_token):
     dest_url = '{0}/{1}/comments'.format(FB_BASE_URL, media_id)
     payload = {
         'access_token': facebook_access_token,
@@ -217,8 +217,7 @@ def get_facebook_media_comments(media_id):
     return response.json()
 
 
-def get_facebook_reactions(media_id):
-    facebook_access_token = getenv('FACEBOOK_TOKEN')
+def get_facebook_reactions(media_id, facebook_access_token):
     dest_url = '{0}/{1}/reactions'.format(FB_BASE_URL, media_id)
     payload = {
         'access_token': facebook_access_token,
@@ -263,30 +262,30 @@ def build_facebook_statistics(commenters, reactions_data):
     return facebook_statistics
 
 
-def get_facebook_analyze(*args):
+def make_facebook_analytics(facebook_access_token, group_id):
     now = datetime.now()
     last_date = get_last_date(now, months=-1)
-    facebook_access_token = getenv('FACEBOOK_TOKEN')
-    group_id = getenv('FACEBOOK_GROUP')
     medias = get_facebook_medias(facebook_access_token, group_id)
     commenters = []
     comments = []
     reactions = []
     for media in medias:
-        media_comments = get_facebook_media_comments(media)
+        media_comments = get_facebook_media_comments(
+            media,
+            facebook_access_token,
+            )
         comments.append(media_comments)
         media_commenters = get_facebook_commenters(comments, now, last_date)
         commenters.extend(media_commenters)
-        media_reactions = get_facebook_reactions(media)
+        media_reactions = get_facebook_reactions(media, facebook_access_token)
         reactions.append(media_reactions)
     return build_facebook_statistics(commenters, reactions)
 
 
-def get_instagram_analyze(*args):
+def make_instagram_analytics(insta_login, insta_password, insta_vendor_name):
     now = datetime.now()
-    insta_vendor_name, = args
     last_date = get_last_date(now, months=-3)
-    bot = run_insta_bot(insta_vendor_name)
+    bot = run_insta_bot(insta_vendor_name, insta_login, insta_password)
     user_id = bot.get_user_id_from_username(insta_vendor_name)
     media_slice = slice(0, 5)
     user_medias = bot.get_total_user_medias(user_id)[media_slice]
@@ -337,9 +336,11 @@ def unpack_vk_response(
                 )
 
 
-def get_vk_group_id(vendor_name):
+def get_vk_group_id(vendor_name, access_token):
     payload = {
         'group_ids': vk_vendor_name,
+        'access_token': access_token,
+        'v': VK_API,
     }
     url = VK_BASE_URL.format('groups.getById')
     json_data, response_text = invoke_vk_api(url, payload)
@@ -352,18 +353,26 @@ def get_vk_group_id(vendor_name):
     return -vk_group_id
 
 
-def get_vk_analyze(vk_vendor_name):
-    vk_group_id = get_vk_group_id(vk_vendor_name)
-    vk_medias = get_vk_medias(vk_vendor_name)
+def make_vk_analytics(vk_vendor_name, access_token):
+    vk_group_id = get_vk_group_id(vk_vendor_name, access_token)
+    vk_medias = get_vk_medias(vk_vendor_name, access_token)
     audience_core = set()
     for media in vk_medias:
-        vk_media_comments = get_vk_media_comments(media['id'], vk_group_id)
+        vk_media_comments = get_vk_media_comments(
+            media['id'],
+            vk_group_id,
+            access_token,
+            )
         last_two_week_comments = filter_vk_comments_by_date(
             datetime.now(),
             vk_media_comments,
             )
         vk_commenters = get_vk_commenters(last_two_week_comments, vk_group_id)
-        vk_media_likers = get_vk_media_likers(media['id'], vk_group_id)
+        vk_media_likers = get_vk_media_likers(
+            media['id'],
+            vk_group_id,
+            access_token,
+            )
         intersect = list(set(vk_commenters) & set(vk_media_likers))
         audience_core.update(intersect)
     return audience_core
@@ -376,14 +385,25 @@ if __name__ == '__main__':
     social_media = cli_args.social_media
     vk_vendor_name = getenv('VK_VENDOR')
     insta_vendor_name = getenv('INSTA_VENDOR')
-    analyze_methods = {
-        'instagram': (get_instagram_analyze, insta_vendor_name),
-        'vk': (get_vk_analyze, vk_vendor_name),
-        'facebook': (get_facebook_analyze),
+    insta_login = getenv('INSTA_LOGIN')
+    insta_password = getenv('INSTA_PASSWORD')
+    vk_access_token = getenv('VK_ACCESS_TOKEN')
+    facebook_access_token = getenv('FACEBOOK_TOKEN')
+    facebook_group_id = getenv('FACEBOOK_GROUP')
+    analysis_methods = {
+        'instagram': make_instagram_analytics,
+        'vk': make_vk_analytics,
+        'facebook': make_facebook_analytics,
     }
-    analyze_method, vendor_name = analyze_methods[social_media]
+    functions_args = {
+        'instagram': (insta_login, insta_password, insta_vendor_name),
+        'vk': (vk_vendor_name, vk_access_token),
+        'facebook': (facebook_access_token, facebook_group_id),
+    }
+    analyze_method = analysis_methods[social_media]
+    function_args = functions_args[social_media]
     try:
-        analyze_result = analyze_method(vendor_name)
+        analyze_result = analyze_method(*function_args)
     except VkAPIUnavailable as vk_error:
         pp.pprint('\t\tError during getting VK-analyze:\n{0}'.format(vk_error))
     except FaceBookAPIUnavailable as fb_error:
