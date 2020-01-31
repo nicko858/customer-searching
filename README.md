@@ -11,20 +11,26 @@ You will know, who comments and likes your posts most of all.
 
 Python3 should be already installed.
 
-## How to install and configure 
+## How to install and configure
 
-- ``` 
+- ```bash
   $ git clone https://github.com/nicko858/customer-searching.git
   $ cd customer-searching
   $ pip install -r requirements.txt
-- Create `.env` file in the root of `customer-searching` 
+  ```
+
+- Create `.env` file in the root of `customer-searching`
 - Follow the instructions `VK instructions`, `Facebook instructions` from [this](https://github.com/nicko858/smm-reposting) repo.  
 **(!!You'll also need `groups_access_member_info` - permissions for `graph.facebook`)**
-- Add the following records to your `.env` -file:
+- Also, add the following records to your `.env` -file:
 
     ```bash
     INSTA_LOGIN=<instagram login>
     INSTA_PASSWORD=<instagram password>
+    INSTA_VENDOR=<instagram vendor name>
+
+    VK_VENDOR=<vk vendor name>
+    FACEBOOK_GROUP=<your facebook group id>
     ```
 
 ## How to run
