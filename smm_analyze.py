@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from os import getenv
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-from collections import defaultdict
+from collections import defaultdict, Counter
 import argparse
 import pprint
 import requests
@@ -241,12 +241,13 @@ def get_facebook_medias(facebook_access_token, group_id):
 
 def build_facebook_statistics(commenters, reactions_data):
     facebook_statistics = {}
-    user_reactions_statistics = defaultdict(int)
-    for commenter in set(commenters):
-        for reactions in reactions_data:
-            for reaction in reactions['data']:
-                user_reactions_statistics[reaction['type']] += 1
-        facebook_statistics[commenter] = dict(user_reactions_statistics)
+    grouped_data = defaultdict(list)
+    for records in reactions_data:
+        for reaction in records['data']:
+            grouped_data[reaction['id']].append(reaction['type'])
+    for commenter, reactions in grouped_data.items():
+        if commenter in commenters:
+            facebook_statistics[commenter] = dict(Counter(reactions))
     return facebook_statistics
 
 
