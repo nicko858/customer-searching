@@ -325,7 +325,7 @@ def unpack_vk_response(
                 )
 
 
-def get_vk_group_id(vendor_name, access_token):
+def get_vk_group_id(vk_vendor_name, access_token):
     payload = {
         'group_ids': vk_vendor_name,
         'access_token': access_token,
