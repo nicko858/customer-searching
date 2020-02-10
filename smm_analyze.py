@@ -189,11 +189,10 @@ def dt_from_utc_to_local(utc_datetime_str):
 
 def get_facebook_commenters(comments_data, now, last_date):
     commenters = set()
-    for comments in comments_data:
-        for comment in comments['data']:
-            comment_date = dt_from_utc_to_local(comment['created_time'])
-            if last_date <= comment_date <= now:
-                commenters.add(comment['from']['id'])
+    for comment in comments_data['data']:
+        comment_date = dt_from_utc_to_local(comment['created_time'])
+        if last_date <= comment_date <= now:
+            commenters.add(comment['from']['id'])
     return list(commenters)
 
 
@@ -266,7 +265,11 @@ def make_facebook_analytics(facebook_access_token, group_id):
             facebook_access_token,
             )
         comments.append(media_comments)
-        media_commenters = get_facebook_commenters(comments, now, last_date)
+        media_commenters = get_facebook_commenters(
+            media_comments,
+            now,
+            last_date,
+            )
         commenters.extend(media_commenters)
         media_reactions = get_facebook_reactions(media, facebook_access_token)
         reactions.append(media_reactions)
