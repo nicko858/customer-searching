@@ -283,7 +283,9 @@ def make_instagram_analytics(insta_login, insta_password, insta_vendor_name):
     posts_top = defaultdict(int)
     instagram_statistics = {}
     for media in user_medias:
-        media_info,  = bot.get_media_info(media)
+        # get_media_info() always returns list having len == 1.
+        # So, it needs to unpack list.
+        media_info, = bot.get_media_info(media)
         media_dt = datetime.fromtimestamp(media_info['caption']['created_at'])
         is_valid_date = last_date <= media_dt <= now
         if not is_valid_date:
@@ -363,7 +365,7 @@ def make_vk_analytics(vk_vendor_name, access_token):
             vk_group_id,
             access_token,
             )
-        intersect = list(set(vk_commenters) & set(vk_media_likers))
+        intersect = set(vk_commenters) & set(vk_media_likers)
         audience_core.update(intersect)
     return audience_core
 
