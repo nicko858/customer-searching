@@ -280,8 +280,8 @@ def make_instagram_analytics(insta_login, insta_password, insta_vendor_name):
     user_id = bot.get_user_id_from_username(insta_vendor_name)
     media_slice = slice(0, 5)
     user_medias = bot.get_total_user_medias(user_id)[media_slice]
-    comments_top = defaultdict(int)
-    posts_top = defaultdict(int)
+    comments_top = []
+    posts_top = []
     instagram_statistics = {}
     for media in user_medias:
         # get_media_info() always returns list having len == 1.
@@ -294,12 +294,10 @@ def make_instagram_analytics(insta_login, insta_password, insta_vendor_name):
         media_comments = bot.get_media_comments_all(media)
         commenters = [comment['user_id'] for comment in media_comments]
         unique_commenters = set(commenters)
-        for commenter in commenters:
-            comments_top[commenter] += 1
-        for unique_commenter in unique_commenters:
-            posts_top[unique_commenter] += 1
-    instagram_statistics['Comments Top'] = dict(comments_top)
-    instagram_statistics['Posts Top'] = dict(posts_top)
+        comments_top.extend(commenters)
+        posts_top.extend(unique_commenters)
+    instagram_statistics['Comments Top'] = dict(Counter(comments_top))
+    instagram_statistics['Posts Top'] = dict(Counter(posts_top))
     return instagram_statistics
 
 
