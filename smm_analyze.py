@@ -12,6 +12,7 @@ from urllib3.exceptions import ResponseError
 import json
 import time
 from functools import partial
+from textwrap import dedent
 
 
 VK_API = 5.103
@@ -320,12 +321,16 @@ def unpack_vk_response(
         response_error = json.loads(response_text)
         error_code = response_error['error']['error_code']
         error_msg = response_error['error']['error_msg']
-        raise VkAPIUnavailable(
-            """\t\tSomething went wrong during getting vk group-id!\n
-                API-method - {0}\n
-                error_code - {1}\n
-                error_msg - {2}""".format(dest_url, error_code, error_msg),
-                )
+        output_msg = """
+                API-method - {0}
+                error_code - {1}
+                error_msg - {2}
+                """.format(
+                   dest_url,
+                   error_code,
+                   error_msg,
+                   )
+        raise VkAPIUnavailable(dedent(output_msg))
 
 
 def get_vk_group_id(vk_vendor_name, access_token):
@@ -399,7 +404,7 @@ if __name__ == '__main__':
     try:
         analyze_result = analysis_methods[social_media]()
     except VkAPIUnavailable as vk_error:
-        pp.pprint('\t\tError during getting VK-analyze:\n{0}'.format(vk_error))
+        pp.pprint('Error during getting VK-analyze:{0}'.format(vk_error))
     except FaceBookAPIUnavailable as fb_error:
-        pp.pprint('Error during getting FB-analyze:\n{0}'.format(fb_error))
+        pp.pprint('Error during getting FB-analyze:{0}'.format(fb_error))
     pp.pprint(analyze_result)
