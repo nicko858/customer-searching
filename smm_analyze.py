@@ -80,18 +80,18 @@ def get_vk_media_likers(media_id, group_id, access_token):
     return media_likers
 
 
-def filter_vk_comments_by_date(now, comments_list):
+def filter_vk_comments_by_date(now, vk_media_comments):
     return [
-        comment for comment in comments_list
+        comment for comment in vk_media_comments
         if get_last_date(now, weeks=-2) <=
         datetime.fromtimestamp(comment['date'])
         <= now
         ]
 
 
-def get_vk_commenters(comments_list, group_id):
+def get_vk_commenters(vk_media_comments, group_id):
     return list(
-        {comment['from_id'] for comment in comments_list
+        {comment['from_id'] for comment in vk_media_comments
          if 'from_id' in comment
          and comment['from_id'] != group_id
          })
