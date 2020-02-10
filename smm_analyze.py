@@ -11,6 +11,7 @@ from requests import ConnectionError
 from urllib3.exceptions import ResponseError
 import json
 import time
+from functools import partial
 
 
 VK_API = 5.103
@@ -380,19 +381,21 @@ if __name__ == '__main__':
     facebook_access_token = getenv('FACEBOOK_TOKEN')
     facebook_group_id = getenv('FACEBOOK_GROUP')
     analysis_methods = {
-        'instagram': make_instagram_analytics,
-        'vk': make_vk_analytics,
-        'facebook': make_facebook_analytics,
+        'instagram': partial(
+            make_instagram_analytics,
+            insta_login,
+            insta_password,
+            insta_vendor_name,
+            ),
+        'vk': partial(make_vk_analytics, vk_vendor_name, vk_access_token),
+        'facebook': partial(
+            make_facebook_analytics,
+            facebook_access_token,
+            facebook_group_id,
+            ),
     }
-    functions_args = {
-        'instagram': (insta_login, insta_password, insta_vendor_name),
-        'vk': (vk_vendor_name, vk_access_token),
-        'facebook': (facebook_access_token, facebook_group_id),
-    }
-    analyze_method = analysis_methods[social_media]
-    function_args = functions_args[social_media]
     try:
-        analyze_result = analyze_method(*function_args)
+        analyze_result = analysis_methods[social_media]()
     except VkAPIUnavailable as vk_error:
         pp.pprint('\t\tError during getting VK-analyze:\n{0}'.format(vk_error))
     except FaceBookAPIUnavailable as fb_error:
